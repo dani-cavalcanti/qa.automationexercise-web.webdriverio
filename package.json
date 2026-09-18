@@ -1,0 +1,35 @@
+{
+  "name": "qa-automationexercise-web-webdriverio",
+  "version": "1.0.0",
+  "description": "Automacao E2E do TC01 (registrar e excluir usuario) de automationexercise.com com WebdriverIO, Page Object Model e relatorio Allure.",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.20.0"
+  },
+  "scripts": {
+    "test": "wdio run ./wdio.conf.js",
+    "test:headed": "cross-env HEADLESS=false wdio run ./wdio.conf.js",
+    "test:registration": "wdio run ./wdio.conf.js --suite registration",
+    "allure:generate": "allure generate ./reports/allure-results --clean -o ./reports/allure-report",
+    "allure:open": "allure open ./reports/allure-report",
+    "report": "npm run allure:generate && npm run allure:open",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "@wdio/allure-reporter": "^9.31.4",
+    "@wdio/cli": "^9.31.9",
+    "@wdio/local-runner": "^9.31.9",
+    "@wdio/mocha-framework": "^9.31.9",
+    "@wdio/spec-reporter": "^9.31.2",
+    "allure-commandline": "^2.46.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3"
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+
+# Test execution artifacts (regenerated on every run)
+reports/
+logs/
+*.log
+
+# Environment
+.env
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
