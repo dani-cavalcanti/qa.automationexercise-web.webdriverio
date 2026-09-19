@@ -193,19 +193,22 @@ para `main` (e sob demanda via `workflow_dispatch`):
 
 ## Documentação de testes (CTFL)
 
-A documentação de design de teste segue práticas do **CTFL/ISTQB**:
+A documentação de design de teste segue a terminologia do **CTFL v4.0
+(ISTQB)**:
 
 - [`docs/test-plan.md`](docs/test-plan.md) — escopo, estratégia, ambiente, riscos.
 - [`docs/test-design/TC01-user-registration.md`](docs/test-design/TC01-user-registration.md) —
   especificação formal do TC01 e uma **Tabela de Decisão** sobre a regra "a
   conta é criada com sucesso", cobrindo todas as combinações de condição
-  relevantes (não apenas o caminho feliz automatizado). O documento também
-  justifica explicitamente por que essa técnica foi escolhida em vez de
-  particionamento em classes de equivalência ou análise de valor limite
-  para este cenário específico — aplicar as três de forma genérica
-  produziria análise artificial, algo que se decidiu evitar — e traz um
-  backlog dos cenários mapeados mas **não** implementados, por decisão de
-  escopo.
+  relevantes (não apenas o caminho feliz automatizado), complementada por
+  **Suposição de Erro/Teste Exploratório** para verificar o comportamento
+  real da aplicação. O documento avalia as quatro técnicas caixa-preta de
+  nível K3 do CTFL v4.0 (particionamento, valor limite, tabela de decisão e
+  transição de estado) e justifica explicitamente por que a Tabela de
+  Decisão é a que melhor se encaixa neste cenário — aplicar as demais de
+  forma genérica produziria análise artificial, algo que se decidiu evitar —
+  trazendo um backlog dos cenários mapeados mas **não** implementados, por
+  decisão de escopo.
 
 As condições documentadas (ex.: quais campos têm `required`, a mensagem
 exata de erro para e-mail duplicado) foram **verificadas no comportamento
@@ -273,6 +276,22 @@ foram minhas. Concretamente:
   completo (dependências, scripts, step do workflow) para manter o projeto
   estritamente alinhado ao que é avaliado, em vez de carregar uma
   ferramenta extra que não fazia parte do pedido.
+- **Aprofundamento técnico a partir do syllabus completo do CTFL v4.0**: recebi
+  um resumo detalhado das categorias de técnica do CTFL v4.0 (caixa-preta,
+  caixa-branca, baseada em experiência, e as abordagens colaborativas
+  ATDD/BDD) e pedi para revisar a documentação à luz dele. Isso corrigiu uma
+  imprecisão que eu não tinha percebido — o documento afirmava que o CTFL
+  "sugere três técnicas de caixa-preta", quando na verdade são quatro no
+  nível K3 (a quarta é Transição de Estado) — e me levou a pedir uma análise
+  explícita de por que Transição de Estado também não se encaixa no TC01
+  (o fluxo é sequencial, sem transições alternativas a testar), por que
+  Teste Caixa-Branca está fora de alcance por definição (não temos acesso ao
+  código-fonte de uma aplicação de terceiros) e a formalizar, como Suposição
+  de Erro/Teste Exploratório, o trabalho de verificação empírica que eu já
+  vinha pedindo desde a primeira rodada. Revisei cada afirmação técnica nova
+  antes de aceitar, em particular a comparação entre Tabela de Decisão e
+  Transição de Estado, que exigia entender a diferença real entre as duas
+  técnicas, não apenas repetir a definição do syllabus.
 - **O que não deleguei**: a decisão de escopo (o quê automatizar e o que
   deixar como análise documentada mas não implementada), a escolha das
   técnicas de teste e ferramentas a manter no projeto, a revisão linha a

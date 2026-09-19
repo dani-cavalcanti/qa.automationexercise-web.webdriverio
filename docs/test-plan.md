@@ -17,19 +17,22 @@ teste, ambiente e critérios de entrada/saída, seguindo a terminologia do
   conta ao final (fluxo *happy path* completo, do cadastro à limpeza de
   dados) — ver especificação completa em
   [`docs/test-design/TC01-user-registration.md`](./test-design/TC01-user-registration.md).
-- Documentação de design de teste usando **Tabela de Decisão** (técnica de
-  caixa-preta do CTFL) sobre a regra de negócio "a conta é criada com
-  sucesso". A escolha dessa técnica específica — em vez de aplicar
-  também particionamento em classes de equivalência e análise de valor
-  limite de forma genérica — é justificada em
-  [`docs/test-design/TC01-user-registration.md`](./test-design/TC01-user-registration.md#2-técnica-de-design-de-teste-ctfl-tabela-de-decisão):
-  TC01 é um teste de regra de negócio de ponta a ponta, e a maior parte dos
-  campos do formulário não tem fronteiras reais a analisar (verificado no
-  HTML da aplicação), o que tornaria as outras duas técnicas artificiais
-  aqui. A tabela cobre todas as combinações de condição relevantes — não
-  apenas o caminho feliz automatizado — para fundamentar por que essa é a
-  regra de maior valor para representar o fluxo sozinho, e para deixar
-  registrado, como backlog, o que ficou deliberadamente fora da automação.
+- Documentação de design de teste usando **Tabela de Decisão** (uma das
+  quatro técnicas caixa-preta do CTFL v4.0 no nível K3), complementada por
+  **Suposição de Erro / Teste Exploratório** (técnica baseada em
+  experiência, nível K2) para verificar empiricamente o comportamento real
+  da aplicação. A escolha da Tabela de Decisão como técnica primária — em
+  vez de aplicar também particionamento em classes de equivalência, análise
+  de valor limite e transição de estado de forma genérica — é justificada em
+  [`docs/test-design/TC01-user-registration.md`](./test-design/TC01-user-registration.md#2-abordagem-de-design-de-teste-ctfl-v40):
+  TC01 é um teste de regra de negócio de ponta a ponta e sequencial (não
+  ramificado), e a maior parte dos campos do formulário não tem fronteiras
+  reais a analisar (verificado no HTML da aplicação) — o que tornaria as
+  outras três técnicas artificiais aqui. A tabela cobre todas as combinações
+  de condição relevantes — não apenas o caminho feliz automatizado — para
+  fundamentar por que essa é a regra de maior valor para representar o fluxo
+  sozinho, e para deixar registrado, como backlog, o que ficou
+  deliberadamente fora da automação.
 
 ### Fora de escopo
 
@@ -54,8 +57,11 @@ mesmo com o mapeamento de teste indicando outros candidatos de alto valor
 | Teste de integração de API | Não | Fora do escopo do desafio. |
 
 **Tipo de teste:** funcional, caixa-preta, baseado em especificação
-(*specification-based*), técnica: Tabela de Decisão (ver justificativa da
-escolha na seção 2 do documento de design do TC01).
+(*specification-based*), técnica primária Tabela de Decisão, complementada
+por Suposição de Erro/Teste Exploratório (técnica baseada em experiência)
+para verificação empírica — ver justificativa da escolha na seção 2 do
+documento de design do TC01. Teste caixa-branca está fora de alcance por
+definição: a aplicação sob teste é de terceiros, sem acesso ao código-fonte.
 
 **Abordagem de automação:**
 
@@ -127,5 +133,8 @@ escolha na seção 2 do documento de design do TC01).
   obrigatório vazio) — cada um se beneficiaria de particionamento em classes
   de equivalência ou análise de valor limite quando aplicado ao seu próprio
   campo, técnicas que não se justificavam para o TC01 em si.
+- Casos de transição de estado inválida (ex.: acessar `/delete_account` sem
+  sessão autenticada) — a técnica certa para esse tipo de caso negativo,
+  diferente do TC01 em si (seção 2.1 do documento de design).
 - Testes de API para o mesmo fluxo de cadastro, reduzindo dependência de UI.
 - Execução cross-browser (Firefox/Edge) via matrix build no GitHub Actions.
