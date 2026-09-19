@@ -30,34 +30,34 @@ deliberada, não uma limitação: ver a justificativa em
 
 ## Como este projeto atende aos critérios avaliados
 
-| Critério | Como é atendido | Onde ver |
-| --- | --- | --- |
-| Código de fácil entendimento | Nomes descritivos por intenção (`goToSignupLogin`, `fillAccountInformation`), uma responsabilidade por classe, sem lógica de teste escondida em helpers genéricos | `src/pages/*.page.js` |
-| Documentação dos métodos (não linha a linha) | Um JSDoc por método público explicando o que ele representa e, quando não óbvio, por quê — nenhum comentário explicando cada linha | `src/pages/*.page.js`, `src/data/userFactory.js` |
-| Estrutura de teste Triple A | Arrange/Act/Assert marcados explicitamente como comentários no spec | `test/specs/registration/registerUser.spec.js` |
-| Padrão de projeto | **Page Object Model** — cada página é uma classe exportada como *singleton* | `src/pages/` |
-| Execução em modo headless | Chrome headless por padrão (`--headless=new`); `HEADLESS=false` alterna para depuração local | `wdio.conf.js` |
-| Testes organizados em suítes | Suíte nomeada `registration` em `wdio.conf.js` → `suites`, executável isoladamente | `wdio.conf.js`, `npm run test:registration` |
-| Performance de execução | ~9s por execução local; sem `sleep` fixo; ver [Performance](#performance) para as decisões que sustentam esse tempo | seção Performance |
-| Organização do código/testes/arquivos | Pastas por responsabilidade (`src/pages`, `src/data`, `test/specs`, `docs`) | [Estrutura do projeto](#estrutura-do-projeto) |
-| Integração com Allure Reports | Reporter `allure` configurado em `wdio.conf.js`, com passos nomeados (`allureReporter.step`) e screenshot automático em falha | `wdio.conf.js`, seção [Relatório Allure](#relatório-allure) |
-| Pipeline no GitHub Actions | Workflow que instala, roda os testes headless e publica o relatório Allure como artefato | `.github/workflows/ci.yml` |
-| Mapeamento de elementos | Todo elemento é um getter no Page Object da tela correspondente — nenhum seletor CSS aparece dentro de um spec | `src/pages/*.page.js` |
-| README com configuração/instalação/execução | Este documento | seções abaixo |
+| Critério                                     | Como é atendido                                                                                                                                                   | Onde ver                                                    |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Código de fácil entendimento                 | Nomes descritivos por intenção (`goToSignupLogin`, `fillAccountInformation`), uma responsabilidade por classe, sem lógica de teste escondida em helpers genéricos | `src/pages/*.page.js`                                       |
+| Documentação dos métodos (não linha a linha) | Um JSDoc por método público explicando o que ele representa e, quando não óbvio, por quê — nenhum comentário explicando cada linha                                | `src/pages/*.page.js`, `src/data/userFactory.js`            |
+| Estrutura de teste Triple A                  | Arrange/Act/Assert marcados explicitamente como comentários no spec                                                                                               | `test/specs/registration/registerUser.spec.js`              |
+| Padrão de projeto                            | **Page Object Model** — cada página é uma classe exportada como _singleton_                                                                                       | `src/pages/`                                                |
+| Execução em modo headless                    | Chrome headless por padrão (`--headless=new`); `HEADLESS=false` alterna para depuração local                                                                      | `wdio.conf.js`                                              |
+| Testes organizados em suítes                 | Suíte nomeada `registration` em `wdio.conf.js` → `suites`, executável isoladamente                                                                                | `wdio.conf.js`, `npm run test:registration`                 |
+| Performance de execução                      | ~9s por execução local; sem `sleep` fixo; ver [Performance](#performance) para as decisões que sustentam esse tempo                                               | seção Performance                                           |
+| Organização do código/testes/arquivos        | Pastas por responsabilidade (`src/pages`, `src/data`, `test/specs`, `docs`)                                                                                       | [Estrutura do projeto](#estrutura-do-projeto)               |
+| Integração com Allure Reports                | Reporter `allure` configurado em `wdio.conf.js`, com passos nomeados (`allureReporter.step`) e screenshot automático em falha                                     | `wdio.conf.js`, seção [Relatório Allure](#relatório-allure) |
+| Pipeline no GitHub Actions                   | Workflow que instala, roda os testes headless e publica o relatório Allure como artefato                                                                          | `.github/workflows/ci.yml`                                  |
+| Mapeamento de elementos                      | Todo elemento é um getter no Page Object da tela correspondente — nenhum seletor CSS aparece dentro de um spec                                                    | `src/pages/*.page.js`                                       |
+| README com configuração/instalação/execução  | Este documento                                                                                                                                                    | seções abaixo                                               |
 
 ## Stack e decisões de arquitetura
 
-| Item | Escolha | Por quê |
-| --- | --- | --- |
-| Framework de automação | [WebdriverIO](https://webdriver.io/) v9 | Requisito do desafio. |
-| Test runner | Mocha (`describe`/`it`) | WebdriverIO usa Mocha nativamente para suítes não-BDD/Gherkin; mantém a sintaxe fora do Cucumber, conforme exigido. |
-| Padrão de projeto | **Page Object Model** (`src/pages/`) | Cada tela é uma classe própria, exportada como *singleton*, expondo só seus próprios elementos (mapeados como getters) e ações — o teste não conhece um único seletor CSS diretamente. |
-| Massa de dados | `src/data/userFactory.js` + `@faker-js/faker` | Uma função de fábrica gera um usuário válido com e-mail único a cada execução (a aplicação rejeita e-mails duplicados), mantendo o spec livre da lista de ~19 campos do formulário. |
-| Estrutura do teste | **AAA (Arrange–Act–Assert)** | O spec segue essas três seções explicitamente; cada fase do "Act" também é um passo nomeado no Allure (`allureReporter.step`), para que o relatório narre o que aconteceu, não só o resultado final. |
-| Resiliência | `specFileRetries: 1` + `wdio:enforceWebDriverClassic` | Uma nova tentativa automática absorve instabilidade pontual do ambiente público; o protocolo WebDriver clássico evita uma disputa de tempo real observada entre o WebDriver Bidi e a navegação da SPA (ver [Uso de IA](#uso-de-ia-neste-projeto)). |
-| Relatório | Allure Reports | Requisito do desafio; passos nomeados e screenshot anexado automaticamente em caso de falha. |
-| CI | GitHub Actions | Requisito do desafio; executa o teste a cada push/PR e publica o relatório Allure como artefato do workflow. |
-| Qualidade de código | ESLint (flat config) + Prettier | Evita bugs comuns e mantém um estilo consistente. |
+| Item                   | Escolha                                               | Por quê                                                                                                                                                                                                                                            |
+| ---------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework de automação | [WebdriverIO](https://webdriver.io/) v9               | Requisito do desafio.                                                                                                                                                                                                                              |
+| Test runner            | Mocha (`describe`/`it`)                               | WebdriverIO usa Mocha nativamente para suítes não-BDD/Gherkin; mantém a sintaxe fora do Cucumber, conforme exigido.                                                                                                                                |
+| Padrão de projeto      | **Page Object Model** (`src/pages/`)                  | Cada tela é uma classe própria, exportada como _singleton_, expondo só seus próprios elementos (mapeados como getters) e ações — o teste não conhece um único seletor CSS diretamente.                                                             |
+| Massa de dados         | `src/data/userFactory.js` + `@faker-js/faker`         | Uma função de fábrica gera um usuário válido com e-mail único a cada execução (a aplicação rejeita e-mails duplicados), mantendo o spec livre da lista de ~19 campos do formulário.                                                                |
+| Estrutura do teste     | **AAA (Arrange–Act–Assert)**                          | O spec segue essas três seções explicitamente; cada fase do "Act" também é um passo nomeado no Allure (`allureReporter.step`), para que o relatório narre o que aconteceu, não só o resultado final.                                               |
+| Resiliência            | `specFileRetries: 1` + `wdio:enforceWebDriverClassic` | Uma nova tentativa automática absorve instabilidade pontual do ambiente público; o protocolo WebDriver clássico evita uma disputa de tempo real observada entre o WebDriver Bidi e a navegação da SPA (ver [Uso de IA](#uso-de-ia-neste-projeto)). |
+| Relatório              | Allure Reports                                        | Requisito do desafio; passos nomeados e screenshot anexado automaticamente em caso de falha.                                                                                                                                                       |
+| CI                     | GitHub Actions                                        | Requisito do desafio; executa o teste a cada push/PR e publica o relatório Allure como artefato do workflow.                                                                                                                                       |
+| Qualidade de código    | ESLint (flat config) + Prettier                       | Evita bugs comuns e mantém um estilo consistente.                                                                                                                                                                                                  |
 
 ## Estrutura do projeto
 
@@ -187,7 +187,7 @@ para `main` (e sob demanda via `workflow_dispatch`):
 3. Gera o relatório Allure (`npm run allure:generate`), com Java provisionado
    no runner.
 4. Publica o relatório Allure e os resultados brutos como **artefatos do
-   workflow**, disponíveis para download na aba *Actions* de cada execução —
+   workflow**, disponíveis para download na aba _Actions_ de cada execução —
    inclusive quando o teste falha (`if: always()`), para permitir
    diagnóstico.
 
@@ -217,88 +217,98 @@ projeto](#uso-de-ia-neste-projeto) para como isso foi feito.
 
 ## Uso de IA neste projeto
 
-Fui transparente sobre o uso de IA porque foi explicitamente pedido pelo
-desafio e porque acredito que **o "como" importa mais que o "se"**. Usei o
-**Claude Code** como par de desenvolvimento durante toda a construção deste
-repositório, mas as decisões de escopo, arquitetura e a validação final
-foram minhas. Concretamente:
+### Como e por que usei IA neste desafio
 
-- **Scaffolding e boilerplate**: pedi para a IA montar a estrutura inicial
-  do projeto (configuração do WebdriverIO, `package.json`, ESLint) para não
-  gastar tempo com tarefas mecânicas e repetíveis, e revisei cada arquivo
-  gerado antes de seguir em frente.
-- **Verificação empírica em vez de suposição**: em vez de aceitar seletores
-  ou regras de validação "de memória", pedi que a IA escrevesse um pequeno
-  script usando o próprio WebdriverIO para inspecionar o HTML real do
-  formulário de cadastro (atributos `required`, `type`, ausência de
-  `pattern`/`maxlength`, intervalo real dos `<select>` de dia/mês/ano, e a
-  resposta real do servidor a um e-mail duplicado). Isso gerou dados
-  concretos (ex.: o `<select>` de ano vai até 2021, não até o ano atual) que
-  usei na documentação — evitando uma documentação de teste "bonita" mas
-  desalinhada com o comportamento real da aplicação.
-- **Depuração de flakiness real**: a primeira execução do teste falhou de
-  forma intermitente por uma disputa de tempo entre o protocolo WebDriver
-  Bidi e a navegação da SPA (erro `execution contexts cleared`). Analisei o
-  log, decidi forçar o protocolo WebDriver clássico
-  (`wdio:enforceWebDriverClassic`) e validei a correção rodando o teste
-  várias vezes seguidas antes de considerar o problema resolvido — não
-  aceitei "passou uma vez" como critério de pronto.
-- **Redação da documentação CTFL**: pedi à IA para estruturar a análise a
-  partir dos dados reais coletados na etapa de verificação empírica, e
-  revisei o raciocínio (por exemplo, quais condições da tabela de decisão
-  são logicamente irrelevantes e por quê) antes de aceitar o conteúdo.
-- **Correção de rota (controle de escopo)**: em uma iteração anterior, deixei
-  a IA ampliar a automação para 8 casos de teste em 4 áreas (login, logout,
-  contato, newsletter), por considerar a cobertura de um único caso pobre
-  para representar um projeto real. Ao revisar, entendi que isso extrapolava
-  o que o desafio pediu — e pedi explicitamente para reverter a automação a
-  apenas o TC01, mantendo o rigor técnico (Page Objects bem definidos,
-  passos nomeados no Allure) e a profundidade da análise de teste, mas sem
-  código para cenários não solicitados. Isso significou pedir para a IA
-  remover Page Objects, specs e documentos inteiros que ela havia acabado de
-  escrever — decisão de disciplina de escopo, não de qualidade técnica do
-  que foi removido.
-- **Escolha deliberada de UMA técnica CTFL**: a primeira versão da
-  documentação aplicava as três técnicas sugeridas pelo desafio
-  (particionamento, valor limite e tabela de decisão) ao mesmo formulário.
-  Ao reler, percebi que isso soava artificial — parecia "cumprir uma lista"
-  em vez de escolher a ferramenta certa para o cenário. Pedi à IA para
-  escolher e justificar apenas uma técnica; ela recomendou Tabela de Decisão
-  (por TC01 ser um teste de regra de negócio de ponta a ponta, e por a
-  maioria dos campos não ter fronteiras reais para BVA — algo já verificado
-  empiricamente na rodada anterior). Concordei com a justificativa técnica e
-  pedi a reescrita do documento em cima dela.
-- **Remoção do relatório visual (Mochawesome)**: numa rodada anterior, tinha
-  pedido um segundo relatório (Mochawesome) por achar o Allure pouco
-  amigável para stakeholders não técnicos. Ao reavaliar o checklist oficial
-  do desafio — que pede especificamente integração com Allure Reports, sem
-  mencionar nenhum outro relatório — decidi remover o Mochawesome por
-  completo (dependências, scripts, step do workflow) para manter o projeto
-  estritamente alinhado ao que é avaliado, em vez de carregar uma
-  ferramenta extra que não fazia parte do pedido.
-- **Aprofundamento técnico a partir do syllabus completo do CTFL v4.0**: recebi
-  um resumo detalhado das categorias de técnica do CTFL v4.0 (caixa-preta,
-  caixa-branca, baseada em experiência, e as abordagens colaborativas
-  ATDD/BDD) e pedi para revisar a documentação à luz dele. Isso corrigiu uma
-  imprecisão que eu não tinha percebido — o documento afirmava que o CTFL
-  "sugere três técnicas de caixa-preta", quando na verdade são quatro no
-  nível K3 (a quarta é Transição de Estado) — e me levou a pedir uma análise
-  explícita de por que Transição de Estado também não se encaixa no TC01
-  (o fluxo é sequencial, sem transições alternativas a testar), por que
-  Teste Caixa-Branca está fora de alcance por definição (não temos acesso ao
-  código-fonte de uma aplicação de terceiros) e a formalizar, como Suposição
-  de Erro/Teste Exploratório, o trabalho de verificação empírica que eu já
-  vinha pedindo desde a primeira rodada. Revisei cada afirmação técnica nova
-  antes de aceitar, em particular a comparação entre Tabela de Decisão e
-  Transição de Estado, que exigia entender a diferença real entre as duas
-  técnicas, não apenas repetir a definição do syllabus.
-- **O que não deleguei**: a decisão de escopo (o quê automatizar e o que
-  deixar como análise documentada mas não implementada), a escolha das
-  técnicas de teste e ferramentas a manter no projeto, a revisão linha a
-  linha do código antes de aceitar, e a validação final (rodar o teste
-  múltiplas vezes, o lint e a geração do relatório) foram feitas por mim.
+Usei o Claude Code (Anthropic) como par de desenvolvimento durante todo o
+desafio, mas de forma supervisionada — validando cada etapa antes de seguir
+para a próxima, em vez de aceitar a primeira saída gerada. Este é um resumo
+honesto de onde a IA ajudou, onde eu direcionei/critiquei o resultado, e
+por quê.
 
-Em resumo: usei a IA para acelerar trabalho mecânico e para me dar mais
-tempo para o que realmente exige julgamento de SDET — decidir o que testar
-e o que não testar, e verificar se o comportamento documentado corresponde
-ao comportamento real da aplicação.
+#### 1. Verificação do comportamento real da aplicação (antes de escrever a documentação de teste)
+
+Em vez de confiar na minha memória sobre como o formulário de cadastro do
+automationexercise.com valida seus campos (ou na "memória" do modelo, que
+pode estar desatualizada ou simplesmente errada), pedi para o Claude
+escrever pequenos scripts descartáveis usando o próprio WebdriverIO para
+inspecionar o HTML real da aplicação em produção. Como é uma aplicação
+pública de terceiros, sem acesso ao código-fonte, a única fonte de verdade
+confiável era observar o comportamento real dela em execução — não a
+documentação (que não existe) nem a memória de quem já usou sites
+parecidos. Isso me deu, com certeza, e não por suposição:
+
+- quais campos realmente têm o atributo `required` (e quais não têm — ex.:
+  Senha, Celular e CEP não têm `minlength`/`maxlength`/`pattern` no HTML,
+  algo que só a inspeção real revelou, não a documentação da aplicação);
+- o intervalo real dos `<select>` de dia/mês/ano do formulário — o de ano
+  vai só até 2021, não até o ano atual, uma fronteira de dados da própria
+  aplicação que eu não teria adivinhado;
+- as mensagens de erro exatas retornadas pelo servidor ("Email Address
+  already exist!" para cadastro com e-mail duplicado, "Your email or
+  password is incorrect!" para login inválido) — inclusive confirmando que
+  um e-mail **nunca cadastrado** retorna a mesma mensagem genérica de senha
+  incorreta, uma afirmação de segurança não trivial que fiz questão de
+  verificar manualmente antes de deixá-la entrar na documentação.
+
+Essa etapa foi decisiva: documentar uma Tabela de Decisão "de livro-texto"
+sobre um formulário real sem checar o comportamento de fato é o tipo de
+documentação bonita mas desalinhada com a realidade que eu queria evitar.
+
+#### 2. Estruturação do projeto e redação do teste
+
+Direcionei explicitamente a arquitetura (Page Object Model com uma classe
+por tela exportada como _singleton_, dados de teste isolados numa fábrica
+própria, o motivo de cada pasta) e a forma de expressar o padrão AAA
+exigido pelo desafio dentro da sintaxe do WebdriverIO/Mocha (Arrange/Act/
+Assert como comentários explícitos no spec, e cada fase do "Act" também
+como um passo nomeado no relatório Allure via `allureReporter.step`). Pedi
+para a IA implementar essa estrutura de forma consistente, e revisei
+arquivo por arquivo o resultado antes de aceitar.
+
+#### 3. Verificação ativa, não confiança cega
+
+Cada decisão técnica potencialmente arriscada foi checada contra a fonte,
+não assumida:
+
+- a assinatura exata do `allureReporter.step()` foi conferida lendo o
+  arquivo de tipos dentro de `node_modules/@wdio/allure-reporter`, não
+  apenas assumida da documentação;
+- uma falha intermitente real (disputa de tempo entre o protocolo WebDriver
+  Bidi e a navegação da SPA sob teste, erro `execution contexts cleared`)
+  foi diagnosticada a partir do log de execução, corrigida com
+  `wdio:enforceWebDriverClassic`, e a correção só foi aceita depois de
+  rodar a suíte várias vezes seguidas — não "passou uma vez" como critério
+  de pronto. Inclusive nesta própria revisão final, uma execução pegou uma
+  instabilidade pontual real do ambiente público e o mecanismo de retry
+  (`specFileRetries: 1`) a absorveu automaticamente, exatamente como
+  documentado na seção [Performance](#performance);
+- ESLint e Prettier foram rodados e corrigidos antes de considerar qualquer
+  arquivo "pronto";
+- removi decisões que a IA havia tomado por conta própria assim que ficou
+  claro, na prática ou numa releitura minha, que extrapolavam o pedido: a
+  suíte tinha crescido para 8 casos de teste em 4 áreas (login, logout,
+  contato, newsletter) — revertida para o único TC01 pedido pelo desafio;
+  um segundo relatório visual (Mochawesome) tinha sido adicionado sem estar
+  no checklist oficial do desafio — removido por completo; e um "Builder"
+  de dados de teste tinha métodos encadeáveis (`withTitle`, `withPassword`
+  etc.) que nenhum teste usava — simplificado para uma fábrica direta
+  (`userFactory.js`). Prefiro menos código a código "por precaução" que
+  ninguém exercita.
+
+#### 4. O que eu fiz, e o que a IA fez
+
+| Decisão                                                                        | Quem definiu                                                                             |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Escopo (automatizar somente o TC01, mesmo mapeando mais cenários como backlog) | Eu, revertendo uma expansão que a IA havia proposto                                      |
+| Qual técnica do CTFL usar como principal (Tabela de Decisão) e por quê         | Eu, a partir de uma análise que pedi à IA e revisei criticamente                         |
+| Verificação do comportamento real do formulário/aplicação                      | IA, sob minha orientação, com validação minha do resultado                               |
+| Arquitetura de pastas (Page Objects, dados, specs, docs)                       | Eu, com a IA implementando conforme a diretriz                                           |
+| Redação de cada método, spec e documento                                       | IA, revisado e ajustado por mim                                                          |
+| Diagnóstico e correção da flakiness real (Bidi × navegação da SPA)             | IA, a partir do log; aceitação da correção validada por mim rodando a suíte várias vezes |
+| Validação final (rodar a suíte, lint, gerar o relatório)                       | Eu                                                                                       |
+
+Em resumo: usei a IA como acelerador de execução e como forma de verificar
+rapidamente o comportamento real da aplicação, em vez de documentá-lo de
+memória, mas mantive o julgamento técnico — o que testar, o que
+simplificar, onde parar — comigo, validando o resultado a cada etapa em vez
+de aceitá-lo às cegas.
